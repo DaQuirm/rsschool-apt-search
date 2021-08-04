@@ -1,0 +1,31 @@
+module Data.Apartment where
+
+data Bezirk
+  = Mitte
+  | Friedrichshain
+  | Kreuzberg
+  | PrenzlauerBerg
+  | Charlottenburg
+  | Spandau
+  | Schöneberg
+  | Neukölln
+  | MarzahnHellersdorf
+  | Lichtenberg
+  | Reinickendorf
+  deriving (Eq, Show)
+
+data Floor
+  = Ground
+  | Floor Int
+  | Attic
+  deriving Show
+
+data Apartment = Apartment
+  { address :: String
+  , rooms   :: Int
+  , rent    :: Float
+  , bezirk  :: Bezirk
+  , area    :: Float
+  , floor   :: Floor
+  , lift    :: Bool
+  } deriving Show
