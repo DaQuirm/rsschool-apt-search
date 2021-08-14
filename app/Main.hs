@@ -1,10 +1,8 @@
 module Main where
 
-import Data.Apartment (Apartment(..), Bezirk (..))
+import Data.Apartment ( Apartment(..), Bezirk(..), Predicate, Getter )
 import Data.Fixture.Apartments (apartments)
-
-type Predicate = Apartment -> Bool
-type Getter a = Apartment -> a
+import Data.Filter (Filter(..), Property(..), Operator(..), runFilter)
 
 (&&&) :: Predicate -> Predicate -> Predicate
 pa &&& pb = \apartment -> pa apartment && pb apartment
@@ -12,38 +10,52 @@ pa &&& pb = \apartment -> pa apartment && pb apartment
 (|||) :: Predicate -> Predicate -> Predicate
 pa ||| pb = \apartment -> pa apartment || pb apartment
 
-compareWith :: (a -> b -> Bool) -> Getter a -> b -> Predicate
-compareWith op getter value apartment = getter apartment `op` value
-
-below :: Ord a => Getter a -> a -> Predicate
-below = compareWith (<)
-
-atLeast :: Ord a => Getter a -> a -> Predicate
-atLeast = compareWith (>=)
-
-is :: Eq a => Getter a -> a -> Predicate
-is = compareWith (==)
-
 anyOf :: Eq a => Getter a -> [a] -> Predicate
-anyOf = compareWith elem
+anyOf getter values = is getter (`elem` values)
 
 findApartment :: Predicate -> [Apartment]
 findApartment p = filter p apartments
 
+is :: Getter a -> (a -> Bool) -> Predicate
+is = flip (.)
+
 r1 :: [Apartment]
 r1 = findApartment
-  (   rent `below` 700
-  &&& (area `atLeast` 50)
+  (   rent `is` (< 700)
+  &&& (area `is` (>= 50))
   &&& (bezirk `anyOf` [Charlottenburg, Neukölln, PrenzlauerBerg])
-  &&& (rooms `atLeast` 2)
+  &&& (rooms `is` (>= 2))
   )
+
+myFilter :: Filter
+myFilter = Filter Rent LessThan 700
+
+r2 = findApartment (runFilter myFilter)
 
 {-
 >>> import qualified Data.Text.Lazy as TL
 >>> import Text.Pretty.Simple
 >>> prettyPrint v = error (TL.unpack $ pShowNoColor v) :: IO String
->>> prettyPrint r1
+>>> prettyPrint r2
 [ Apartment
+    { address = "Otto-Suhr-Allee 114"
+    , rooms = 1
+    , rent = 620.0
+    , bezirk = Charlottenburg
+    , area = 50.0
+    , floor = Ground
+    , lift = False
+    }
+, Apartment
+    { address = "Nogatstraße 31"
+    , rooms = 1
+    , rent = 516.0
+    , bezirk = Neukölln
+    , area = 43.0
+    , floor = Floor 3
+    , lift = False
+    }
+, Apartment
     { address = "Marienfelder Allee 27"
     , rooms = 2
     , rent = 600.0
@@ -60,6 +72,24 @@ r1 = findApartment
     , area = 59.85
     , floor = Floor 3
     , lift = False
+    }
+, Apartment
+    { address = "Freiheitsweg 13"
+    , rooms = 1
+    , rent = 313.48
+    , bezirk = Reinickendorf
+    , area = 37.21
+    , floor = Attic
+    , lift = False
+    }
+, Apartment
+    { address = "Kurfürstendamm 105"
+    , rooms = 1
+    , rent = 495.0
+    , bezirk = Charlottenburg
+    , area = 41.0
+    , floor = Floor 3
+    , lift = True
     }
 , Apartment
     { address = "Müllerstr. 29"

@@ -29,3 +29,6 @@ data Apartment = Apartment
   , floor   :: Floor
   , lift    :: Bool
   } deriving Show
+
+type Predicate = Apartment -> Bool
+type Getter a = Apartment -> a
