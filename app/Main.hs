@@ -2,7 +2,7 @@ module Main where
 
 import Data.Apartment ( Apartment(..), Bezirk(..), Predicate, Getter )
 import Data.Fixture.Apartments (apartments)
-import Data.Filter (Filter(..), Property(..), Operator(..), runFilter)
+import Data.Filter (Filter(..), Operator(..), runFilter)
 
 (&&&) :: Predicate -> Predicate -> Predicate
 pa &&& pb = \apartment -> pa apartment && pb apartment
@@ -28,7 +28,10 @@ r1 = findApartment
   )
 
 myFilter :: Filter
-myFilter = Filter Rent LessThan 700
+myFilter = BezirkExpr (AnyOf [Charlottenburg, Neukölln, PrenzlauerBerg])
+
+-- >>> show myFilter
+-- "bezirk any of [Charlottenburg,Neuk\246lln,PrenzlauerBerg]"
 
 r2 = findApartment (runFilter myFilter)
 
@@ -47,12 +50,30 @@ r2 = findApartment (runFilter myFilter)
     , lift = False
     }
 , Apartment
+    { address = "Wilmersdorfer Straße 37"
+    , rooms = 3
+    , rent = 1400.0
+    , bezirk = Charlottenburg
+    , area = 89.0
+    , floor = Floor 4
+    , lift = False
+    }
+, Apartment
     { address = "Nogatstraße 31"
     , rooms = 1
     , rent = 516.0
     , bezirk = Neukölln
     , area = 43.0
     , floor = Floor 3
+    , lift = False
+    }
+, Apartment
+    { address = "Tempelhofer Feld"
+    , rooms = 2
+    , rent = 780.0
+    , bezirk = Neukölln
+    , area = 71.0
+    , floor = Ground
     , lift = False
     }
 , Apartment
@@ -65,6 +86,24 @@ r2 = findApartment (runFilter myFilter)
     , lift = True
     }
 , Apartment
+    { address = "Dietrich-Bonhoeffer-Straße 2"
+    , rooms = 2
+    , rent = 702.0
+    , bezirk = PrenzlauerBerg
+    , area = 54.0
+    , floor = Floor 1
+    , lift = True
+    }
+, Apartment
+    { address = "Dahlmannstrasse 2"
+    , rooms = 2
+    , rent = 850.0
+    , bezirk = Charlottenburg
+    , area = 72.0
+    , floor = Floor 3
+    , lift = True
+    }
+, Apartment
     { address = "Alt Moabit 37"
     , rooms = 2
     , rent = 389.62
@@ -74,12 +113,21 @@ r2 = findApartment (runFilter myFilter)
     , lift = False
     }
 , Apartment
-    { address = "Freiheitsweg 13"
-    , rooms = 1
-    , rent = 313.48
-    , bezirk = Reinickendorf
-    , area = 37.21
-    , floor = Attic
+    { address = "Rauschener Alle 1"
+    , rooms = 2
+    , rent = 800.0
+    , bezirk = Charlottenburg
+    , area = 58.0
+    , floor = Floor 3
+    , lift = False
+    }
+, Apartment
+    { address = "Kurfürstendamm 74"
+    , rooms = 3
+    , rent = 1055.0
+    , bezirk = Charlottenburg
+    , area = 84.41
+    , floor = Floor 2
     , lift = False
     }
 , Apartment
