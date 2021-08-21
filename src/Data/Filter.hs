@@ -18,7 +18,7 @@ runOperator :: Ord a => Operator a -> a -> Bool
 runOperator (LessThan n)    = (< n)
 runOperator (GreaterThan n) = (> n)
 runOperator (AnyOf xs)      = (`elem` xs)
-runOperator (Equal n)       = (= n)
+runOperator (Equal n)       = (== n)
 
 data Filter
   = RoomsExpr  (Operator Int)
