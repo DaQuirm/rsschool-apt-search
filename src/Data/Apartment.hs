@@ -18,7 +18,7 @@ data Floor
   = Ground
   | Floor Int
   | Attic
-  deriving Show
+  deriving (Eq, Show)
 
 data Apartment = Apartment
   { address :: String
@@ -28,7 +28,7 @@ data Apartment = Apartment
   , area    :: Float
   , floor   :: Floor
   , lift    :: Bool
-  } deriving Show
+  } deriving (Eq, Show)
 
 type Predicate = Apartment -> Bool
 type Getter a = Apartment -> a
