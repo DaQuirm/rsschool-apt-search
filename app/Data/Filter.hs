@@ -1,6 +1,7 @@
 module Data.Filter where
 
 import Data.Apartment ( Apartment(..), Predicate, Bezirk )
+import Data.Monoid (Any(..), All (..))
 
 data Operator a
   = Equals a
@@ -26,8 +27,8 @@ data Filter
   | BezirkExpr (Operator Bezirk)
   | AreaExpr   (Operator Float)
   | LiftExpr   (Operator Bool)
-  | And        Filter Filter
-  | Or         Filter Filter
+  | And        [Filter]
+  | Or         [Filter]
 
 instance Show Filter where
   show (RoomsExpr op)  = "rooms "  ++ show op
@@ -35,17 +36,17 @@ instance Show Filter where
   show (BezirkExpr op) = "bezirk " ++ show op
   show (AreaExpr op)   = "area "   ++ show op
   show (LiftExpr op)   = "lift "   ++ show op
-  show (And fl fr)     = "(" ++ show fl ++ ") and (" ++ show fr ++")"
-  show (Or fl fr)      = "(" ++ show fl ++ ") or (" ++ show fr ++")"
+  show (And fs)        = "and" ++ show fs
+  show (Or fs)         = "or" ++ show fs
 
 -- >>> show (RentExpr (LessThan 700))
 -- "rent < 700.0"
 
 (&&&) :: Predicate -> Predicate -> Predicate
-pa &&& pb = \apartment -> pa apartment && pb apartment
+pa &&& pb = getAll . (All . pa <> All . pb)
 
 (|||) :: Predicate -> Predicate -> Predicate
-pa ||| pb = \apartment -> pa apartment || pb apartment
+pa ||| pb = getAny . (Any . pa <> Any . pb)
 
 runFilter :: Filter -> Predicate
 runFilter (RoomsExpr op)  Apartment { rooms }  = runOperator op rooms
@@ -53,5 +54,62 @@ runFilter (RentExpr op)   Apartment { rent }   = runOperator op rent
 runFilter (BezirkExpr op) Apartment { bezirk } = runOperator op bezirk
 runFilter (AreaExpr op)   Apartment { area }   = runOperator op area
 runFilter (LiftExpr op)   Apartment { lift }   = runOperator op lift
-runFilter (And fl fr)     apartment            = (runFilter fl &&& runFilter fr) apartment
-runFilter (Or fl fr)      apartment            = (runFilter fl ||| runFilter fr) apartment
+runFilter (And fs)        apartment            = andP (map runFilter fs) apartment
+runFilter (Or fs)         apartment            = orP (map runFilter fs) apartment
+
+-- List = 1 &&& (2 &&& (3 &&& 0)) --> sum = foldl (+) 0
+
+-- >>> :t and
+-- and :: [Bool] -> Bool
+
+-- >>> :t foldr
+-- foldr :: (a -> b -> b) -> b -> [a] -> b
+
+andP :: [Predicate] -> Predicate
+andP = foldr (&&&) (const True)
+
+orP :: [Predicate] -> Predicate
+orP = foldr (|||) (const False)
+
+-- newtype Sum = Sum { getSum :: Int } deriving Show
+-- newtype Product = Product { getProduct :: Int } deriving Show
+
+-- instance Semigroup Sum where
+--   (Sum x) <> (Sum y) = Sum (x + y)
+
+-- instance Semigroup Product where
+--   (Product x) <> (Product y) = Product (x * y)
+
+-- >>> getSum ((Sum 3) <> (Sum 4))
+-- 7
+
+-- >>> getProduct ((Product 3) <> (Product 4))
+-- 12
+
+-- >>> :t (&&)
+-- (&&) :: Bool -> Bool -> Bool
+
+-- >>> :t (||)
+-- (||) :: Bool -> Bool -> Bool
+
+-- instance Monoid Sum where
+--   mempty = Sum 0
+
+-- instance Monoid Product where
+--   mempty = Product 1
+
+-- >>> mconcat [Sum 3, Sum 4, Sum 5]
+-- Sum {getSum = 12}
+
+-- Apartment -> Bool
+
+
+
+-- Apartment -> All
+-- Apartment -> Any
+
+-- >>> getAll ((mconcat [const (All False), const (All True), const (All True), const (All False)]) 37)
+-- False
+
+-- >>> :t All
+-- All :: Bool -> All

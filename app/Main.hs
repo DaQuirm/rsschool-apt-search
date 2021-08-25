@@ -13,17 +13,17 @@ is = flip (.)
 myFilter :: Filter
 myFilter =
     Or
-      (And
-        (RentExpr (LessThan 700))
-        (And
-          (AreaExpr (GreaterThan 50))
-          (And
-            (BezirkExpr (AnyOf [Charlottenburg, Neukölln, PrenzlauerBerg]))
-            (RoomsExpr (GreaterThan 2)))))
-      (RentExpr (LessThan 400))
+      [ And
+          [ RentExpr (LessThan 700)
+          , AreaExpr (GreaterThan 50)
+          , BezirkExpr (AnyOf [Charlottenburg, Neukölln, PrenzlauerBerg])
+          , RoomsExpr (GreaterThan 2)
+          ]
+      , RentExpr (LessThan 400)
+      ]
 
 -- >>> show myFilter
--- "(rent < 700.0) and (area > 50.0)"
+-- "or[and[rent < 700.0,area > 50.0,bezirk any of [Charlottenburg,Neuk\246lln,PrenzlauerBerg],rooms > 2],rent < 400.0]"
 
 r2 = findApartment (runFilter myFilter)
 
