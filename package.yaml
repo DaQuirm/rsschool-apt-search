@@ -27,19 +27,14 @@ dependencies:
 default-extensions:
   NamedFieldPuns
 
-library:
-  source-dirs: src
-
 executables:
-  rsschool-apt-search-exe:
+  rsschool-apt-search:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    dependencies:
-    - rsschool-apt-search
 
 tests:
   rsschool-apt-search-test:
