@@ -12,7 +12,7 @@ data Bezirk
   | MarzahnHellersdorf
   | Lichtenberg
   | Reinickendorf
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord, Show, Enum)
 
 data Floor
   = Ground
