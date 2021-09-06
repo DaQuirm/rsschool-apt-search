@@ -49,13 +49,13 @@ pa &&& pb = getAll . (All . pa <> All . pb)
 pa ||| pb = getAny . (Any . pa <> Any . pb)
 
 runFilter :: Filter -> Predicate
-runFilter (RoomsExpr op)  Apartment { rooms }  = runOperator op rooms
-runFilter (RentExpr op)   Apartment { rent }   = runOperator op rent
-runFilter (BezirkExpr op) Apartment { bezirk } = runOperator op bezirk
-runFilter (AreaExpr op)   Apartment { area }   = runOperator op area
-runFilter (LiftExpr op)   Apartment { lift }   = runOperator op lift
-runFilter (And fs)        apartment            = andP (map runFilter fs) apartment
-runFilter (Or fs)         apartment            = orP (map runFilter fs) apartment
+runFilter (RoomsExpr op)  = runOperator op . rooms
+runFilter (RentExpr op)   = runOperator op . rent
+runFilter (BezirkExpr op) = runOperator op . bezirk
+runFilter (AreaExpr op)   = runOperator op . area
+runFilter (LiftExpr op)   = runOperator op . lift
+runFilter (And fs)        = andP (map runFilter fs)
+runFilter (Or fs)         = orP (map runFilter fs)
 
 -- List = 1 &&& (2 &&& (3 &&& 0)) --> sum = foldl (+) 0
 
@@ -102,8 +102,6 @@ orP = foldr (|||) (const False)
 -- Sum {getSum = 12}
 
 -- Apartment -> Bool
-
-
 
 -- Apartment -> All
 -- Apartment -> Any
